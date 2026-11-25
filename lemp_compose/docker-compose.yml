@@ -1,47 +1,67 @@
-version: '3.9'
 services:
+  # Веб-сервер Nginx
   web:
     image: nginx:latest
+    # Ім'я контейнера
     container_name: nginx
     ports:
+      # Порт 8080 на хості -> порт 80 у контейнері
       - "8080:80"
     volumes:
+      # Конфіг Nginx з папки nginx
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # Папка з сайтом
       - ./app:/var/www/html
     depends_on:
       - php
 
+  # PHP-FPM
   php:
+    # Збираємо власний образ із Dockerfile.php
     build:
+      # Папка з файлами для збірки (поточна)
       context: .
+      # Ім'я Dockerfile
       dockerfile: Dockerfile.php
     container_name: php
     volumes:
       - ./app:/var/www/html
+    # PHP запускається після бази даних
     depends_on:
       - db
 
+  # База даних MySQL
   db:
     image: mysql:8
     container_name: mysql
+    # Автоматичний перезапуск, якщо контейнер зупинився
     restart: always
+    # Змінні середовища для створення бази й користувача
     environment:
+      # Пароль адміністратора (root)
       MYSQL_ROOT_PASSWORD: root
+      # База даних, яка створиться автоматично
       MYSQL_DATABASE: webdb
+      # Користувач для застосунку та його пароль
       MYSQL_USER: webuser
       MYSQL_PASSWORD: webpass
     volumes:
+      # Том для збереження даних MySQL
       - db_data:/var/lib/mysql
 
+  # Додатковий сервіс: веб-інтерфейс для бази даних
   phpmyadmin:
     image: phpmyadmin
     container_name: phpmyadmin
     ports:
+      # phpMyAdmin доступний на порту 8081
       - "8081:80"
     environment:
+      # Сервер бази даних (ім'я сервісу)
       PMA_HOST: db
     depends_on:
       - db
 
+# Оголошення тому db_data
 volumes:
   db_data:
