@@ -1,17 +1,22 @@
 <?php
+// Підключаємо налаштування бази даних
 include 'config.php';
 
+// Створюємо таблицю messages, якщо її ще немає
 $sql = "CREATE TABLE IF NOT EXISTS messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     text VARCHAR(255) NOT NULL
 )";
 $conn->query($sql);
 
-if (isset($_POST['message'])) {
+// Якщо з форми прийшло повідомлення - зберігаємо його в базу
+if (isset($_POST['message']) && $_POST['message'] !== '') {
+    // Екранування спецсимволів (захист від SQL-ін'єкцій)
     $msg = $conn->real_escape_string($_POST['message']);
     $conn->query("INSERT INTO messages (text) VALUES ('$msg')");
 }
 
+// Читаємо всі повідомлення з таблиці
 $result = $conn->query("SELECT * FROM messages");
 ?>
 <!DOCTYPE html>
@@ -29,13 +34,18 @@ $result = $conn->query("SELECT * FROM messages");
 </head>
 <body>
 <h2>LEMP Stack Web App</h2>
+
+<!-- Форма для введення повідомлення -->
 <form method="POST">
     <input type="text" name="message" placeholder="Введіть повідомлення">
     <input type="submit" value="Надіслати">
 </form>
+
 <?php
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
+// Виводимо кожне повідомлення на сторінку
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        // htmlspecialchars захищає від XSS
         echo "<div class='msg'>" . htmlspecialchars($row['text']) . "</div>";
     }
 }
