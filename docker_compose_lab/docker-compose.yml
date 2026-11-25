@@ -1,16 +1,24 @@
-version: '3.9'
+# Описуємо сервіси (контейнери) проєкту
 services:
+  # Сервіс веб-сервера Nginx
   web:
+    # Готовий образ з Docker Hub
     image: nginx:latest
     ports:
+      # Порт 8080 на хості -> порт 80 у контейнері
       - "8080:80"
     volumes:
+      # Підключаємо наш конфіг Nginx
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # Підключаємо папку з сайтом
       - ./app:/var/www/html
+    # Спочатку запускається php, потім web
     depends_on:
       - php
 
+  # Сервіс PHP-FPM, який виконує PHP-код
   php:
     image: php:8.2-fpm
     volumes:
+      # Та сама папка з сайтом
       - ./app:/var/www/html
