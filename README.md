@@ -12,6 +12,7 @@ cd lemp_compose
 docker compose up -d --build
 docker compose ps
 
+```text
 - Веб-застосунок: http://localhost:8080
 
 - phpMyAdmin: http://localhost:8081 (користувач: webuser, пароль: webpass, база: webdb)
